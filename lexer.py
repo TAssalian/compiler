@@ -54,25 +54,27 @@ class Lexer:
             self._advance()
             
     def _get_id_or_reserved_word_token(self, lexeme) -> Token:
-        # TODO: Find if there's a better way to keep this method as a token constructor only, and remove its ability to handle the handling of invalidid by having invalidid be determined in _get_id_or_reserved_word_tokentype(). Have a separation of concerns
         while self.current_char is not None and self.current_char.isalnum() or self.current_char == "_":
             lexeme += self.current_char
             self._advance()
         
         if self.current_char is not None and not self.current_char.isspace():
             lexeme = self._exhaust_invalid_id(lexeme)
-            return Token("invalidid", lexeme, -1) # TODO: Remove hardcore after determining what error types to include
         
         lexeme_type = self._get_id_or_reserved_word_tokentype(lexeme)
         return Token(lexeme_type, lexeme, -1) # TODO: Remove this hardcoded value for actual line numbern
         
     def _get_id_or_reserved_word_tokentype(self, lexeme) -> TokenType:
+        if not all(char.isalnum() or char == "_" for char in lexeme):
+            return "invalidid" # TODO: Remove hardcode after determining what error types to include
+        
         if lexeme in reserved_words:
             return TokenType[lexeme.upper()]
+        
         elif lexeme.lower() in reserved_words and lexeme not in reserved_words:
-            return "invalidreservedword" # TODO: Remove hardcore after determining what error types to include
-        else:
-            return TokenType.ID
+            return "invalidreservedword" # TODO: Remove hardcode after determining what error types to include
+        
+        return TokenType.ID
     
     def _exhaust_invalid_id(self, lexeme) -> str:
         while self.current_char is not None and not self.current_char.isspace():
