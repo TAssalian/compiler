@@ -64,10 +64,9 @@ class Token:
     type: TokenType
     lexeme: str
     line: int
-    column: int
     
     def to_outlextokens(self) -> str:
-        return f"[{self.type.value}, {self.lexeme}, {self.line}, {self.column}]"
+        return f"[{self.type.value}, {self.lexeme}, {self.line}]"
 
     def to_flaci(self) -> str:
         # TODO: Determine input format for Flaci tool
