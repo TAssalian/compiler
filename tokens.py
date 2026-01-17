@@ -57,7 +57,7 @@ class TokenType(Enum):
     INLINECMT = "inlinecmt"
     
     # TODO: Error types
-
+    ERROR = "error"
 
 @dataclass(frozen=True)
 class Token:
@@ -65,13 +65,13 @@ class Token:
     lexeme: str
     line: int
     
-    def to_outlextokens(self) -> str:
+    def to_outtokens(self) -> str:
         return f"[{self.type.value}, {self.lexeme}, {self.line}]"
 
     def to_flaci(self) -> str:
         # TODO: Determine input format for Flaci tool
-        pass
+        return f"'{self.lexeme}' at line {self.line} in Flaci's input format"
 
-    def to_outlexerrors(self) -> str:
+    def to_outerrs(self) -> str:
         # TODO: Determine what error types to implement. If more than one, implement switch-case functionality to print correct, full text error.
-        pass
+        return f"Lexical error: Invalid [x]: '{self.lexeme}': line {self.line}."

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from tokens import Token, TokenType
 
 
-reserved_words = set(
+reserved_words = {
     "if",
     "then",
     "else",
@@ -24,7 +24,7 @@ reserved_words = set(
     "local",
     "void",
     "main"
-)
+}
 
 @dataclass()
 class Lexer:
@@ -39,7 +39,9 @@ class Lexer:
         self._skip_whitespace()
         lexeme = self.current_char
         
-        if self.current_char.isalpha():
+        if self.current_char is None:
+            return
+        elif self.current_char.isalpha():
             self._advance()
             return self._get_id_or_reserved_word_token(lexeme)
         else:
@@ -62,17 +64,17 @@ class Lexer:
             lexeme = self._exhaust_invalid_id(lexeme)
         
         lexeme_type = self._get_id_or_reserved_word_tokentype(lexeme)
-        return Token(lexeme_type, lexeme, -1) # TODO: Remove this hardcoded value for actual line numbern
+        return Token(lexeme_type, lexeme, -1) # TODO: Remove this hardcoded value for actual line number
         
     def _get_id_or_reserved_word_tokentype(self, lexeme: str) -> TokenType:
         if not all(char.isalnum() or char == "_" for char in lexeme):
-            return "invalidid" # TODO: Remove hardcode after determining what error types to include
+            return TokenType.ERROR # TODO: Remove hardcode after determining what error types to include
         
         if lexeme in reserved_words:
             return TokenType[lexeme.upper()]
         
         elif lexeme.lower() in reserved_words and lexeme not in reserved_words:
-            return "invalidreservedword" # TODO: Remove hardcode after determining what error types to include
+            return TokenType.ERROR # TODO: Remove hardcode after determining what error types to include
         
         return TokenType.ID
     
