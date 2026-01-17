@@ -53,7 +53,7 @@ class Lexer:
         while self.current_char is not None and self.current_char.isspace():
             self._advance()
             
-    def _get_id_or_reserved_word_token(self, lexeme) -> Token:
+    def _get_id_or_reserved_word_token(self, lexeme: str) -> Token:
         while self.current_char is not None and self.current_char.isalnum() or self.current_char == "_":
             lexeme += self.current_char
             self._advance()
@@ -64,7 +64,7 @@ class Lexer:
         lexeme_type = self._get_id_or_reserved_word_tokentype(lexeme)
         return Token(lexeme_type, lexeme, -1) # TODO: Remove this hardcoded value for actual line numbern
         
-    def _get_id_or_reserved_word_tokentype(self, lexeme) -> TokenType:
+    def _get_id_or_reserved_word_tokentype(self, lexeme: str) -> TokenType:
         if not all(char.isalnum() or char == "_" for char in lexeme):
             return "invalidid" # TODO: Remove hardcode after determining what error types to include
         
@@ -76,7 +76,7 @@ class Lexer:
         
         return TokenType.ID
     
-    def _exhaust_invalid_id(self, lexeme) -> str:
+    def _exhaust_invalid_id(self, lexeme: str) -> str:
         while self.current_char is not None and not self.current_char.isspace():
             lexeme += self.current_char
             self._advance()
