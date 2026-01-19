@@ -122,7 +122,7 @@ class Lexer:
 
         if exp == "":
             return True
-        if len(exp) < 2 or exp[0] not in {"+", "-"}:
+        if len(exp) < 2 or exp[0] not in ({"+", "-"} | nonzero_digits): # TODO: Allow an integer right after 'e', not just + or -
             return False
         return self._is_integer(exp[1:])
 

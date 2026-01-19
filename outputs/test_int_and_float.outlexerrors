@@ -1,0 +1,15 @@
+Lexical error: Invalid [x]: '1a3': line 3.
+Lexical error: Invalid [x]: 'a2.1': line 4.
+Lexical error: Invalid [x]: '130.00': line 7.
+Lexical error: Invalid [x]: '12.10': line 9.
+Lexical error: Invalid [x]: '12.100': line 10.
+Lexical error: Invalid [x]: '002': line 11.
+Lexical error: Invalid [x]: '01': line 12.
+Lexical error: Invalid [x]: '01.2': line 14.
+Lexical error: Invalid [x]: '0.100': line 15.
+Lexical error: Invalid [x]: '0.0030': line 18.
+Lexical error: Invalid [x]: '0.00300': line 19.
+Lexical error: Invalid [x]: '123e-12': line 21.
+Lexical error: Invalid [x]: '123.e-12': line 23.
+Lexical error: Invalid [x]: '123.00e-12': line 25.
+Lexical error: Invalid [x]: '123e1': line 27.
