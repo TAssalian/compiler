@@ -26,6 +26,11 @@ reserved_words = {
     "main"
 }
 
+nonzero_digits = {
+    "1", "2", "3", "4", 
+    "5", "6", "7", "8", "9"
+}
+
 @dataclass()
 class Lexer:
     text: str
@@ -45,6 +50,9 @@ class Lexer:
         elif self.current_char.isalpha():
             self._advance()
             return self._get_id_or_reserved_word_token(lexeme)
+        elif self.current_char.isdigit():
+            self._advance()
+            return self._get_integer_or_float_token(lexeme)
         else:
             print("Not yet implemented")
     
@@ -55,35 +63,73 @@ class Lexer:
             self.line += 1
     
     def _skip_whitespace(self) -> None:
-        while self.current_char is not None and self.current_char.isspace():
+        while self.current_char and self.current_char.isspace():
             self._advance()
-            
-    def _get_id_or_reserved_word_token(self, lexeme: str) -> Token:
-        while self.current_char is not None and (self.current_char.isalnum() or self.current_char == "_"):
-            lexeme += self.current_char
-            self._advance()
-        
-        if self.current_char is not None and not self.current_char.isspace():
-            lexeme = self._exhaust_invalid_id(lexeme)
-        
-        lexeme_type = self._get_id_or_reserved_word_tokentype(lexeme)
-        return Token(lexeme_type, lexeme, self.line) # TODO: Remove this hardcoded value for actual line number
-        
-    def _get_id_or_reserved_word_tokentype(self, lexeme: str) -> TokenType:
-        if not all(char.isalnum() or char == "_" for char in lexeme):
-            return TokenType.ERROR # TODO: Remove hardcode after determining what error types to include
-        
-        if lexeme in reserved_words:
-            return TokenType[lexeme.upper()]
-        
-        elif lexeme.lower() in reserved_words and lexeme not in reserved_words:
-            return TokenType.ERROR # TODO: Remove hardcode after determining what error types to include
-        
-        return TokenType.ID
     
-    def _exhaust_invalid_id(self, lexeme: str) -> str:
-        while self.current_char is not None and not self.current_char.isspace():
+    def _exhaust_token(self, lexeme: str) -> str:
+        while self.current_char and not self.current_char.isspace():
             lexeme += self.current_char
             self._advance()
         return lexeme
     
+    def _get_id_or_reserved_word_token(self, lexeme: str) -> Token:
+        lexeme = self._exhaust_token(lexeme)
+
+        if self._is_id(lexeme):
+            if lexeme in reserved_words:
+                lexeme_type = TokenType[lexeme.upper()]
+            elif lexeme.lower() in reserved_words and lexeme not in reserved_words:
+                lexeme_type = TokenType.ERROR
+            else:
+                lexeme_type = TokenType.ID
+        else:
+            lexeme_type = TokenType.ERROR
+        return Token(lexeme_type, lexeme, self.line)
+    
+    def _is_id(self, lexeme: str) -> bool:
+        return all(char.isalnum() or char == "_" for char in lexeme[1:])
+
+    
+    def _get_integer_or_float_token(self, lexeme: str) -> Token:
+        lexeme = self._exhaust_token(lexeme)
+
+        if self._is_integer(lexeme):
+            lexeme_type = TokenType.INTEGER
+        elif self._is_float(lexeme):
+            lexeme_type = TokenType.FLOAT
+        else:
+            lexeme_type = TokenType.ERROR
+        return Token(lexeme_type, lexeme, self.line)
+
+    def _is_integer(self, lexeme: str) -> bool:
+        if lexeme == "0":
+            return True
+        return lexeme[0] in nonzero_digits and lexeme[1:].isdigit()
+
+    def _is_float(self, lexeme: str) -> bool:
+        if lexeme.count("e") > 1:
+            return False
+        base, exp = (lexeme.split("e") + [""])[:2]
+
+        if "." not in base or base.count(".") > 1:
+            return False
+        integer_part, fraction_part = base.split(".")
+
+        if not self._is_integer(integer_part):
+            return False
+        if not self._is_fraction(f".{fraction_part}"):
+            return False
+
+        if exp == "":
+            return True
+        if len(exp) < 2 or exp[0] not in {"+", "-"}:
+            return False
+        return self._is_integer(exp[1:])
+
+    def _is_fraction(self, lexeme: str) -> bool:
+        if lexeme == ".0":
+            return True
+        if not lexeme.startswith("."):
+            return False
+        tail = lexeme[1:]
+        return tail.isdigit() and tail[-1] in nonzero_digits
