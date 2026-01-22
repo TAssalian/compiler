@@ -16,7 +16,7 @@ class TokenType(Enum):
 
     PLUS = "plus"        
     MINUS = "minus"   
-    MULT = "mult"    
+    MULT = "mult" 
     DIV = "div"     
 
     OPENPAR = "openpar" 
@@ -56,8 +56,10 @@ class TokenType(Enum):
     BLOCKCMT = "blockcmt"
     INLINECMT = "inlinecmt"
     
-    # TODO: Error types
-    ERROR = "error"
+    INVALIDCHAR = "invalidchar"
+    INVALIDID = "invalidid"
+    INVALIDNUM = "invalidnum"
+    INVALIDCMT = "invalidcmt"
 
 @dataclass(frozen=True)
 class Token:
@@ -69,9 +71,7 @@ class Token:
         return f"[{self.type.value}, {self.lexeme}, {self.line}]"
 
     def to_flaci(self) -> str:
-        # TODO: Determine input format for Flaci tool
-        return f"'{self.lexeme}' at line {self.line} in Flaci's input format"
+        return self.type.value
 
     def to_outerrs(self) -> str:
-        # TODO: Determine what error types to implement. If more than one, implement switch-case functionality to print correct, full text error.
-        return f"Lexical error: Invalid [x]: '{self.lexeme}': line {self.line}."
+        return f"Lexical error: Invalid lexeme: '{self.lexeme}': line {self.line}."

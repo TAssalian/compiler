@@ -30,7 +30,7 @@ def run_lexer(input_path: Path, output_dir: Path) -> None:
         
             t.write(token.to_outtokens() + "\n")
             f.write(token.to_flaci() + "\n")
-            if token.type == TokenType.ERROR:
+            if token.type in {TokenType.INVALIDCHAR, TokenType.INVALIDID, TokenType.INVALIDNUM, TokenType.INVALIDCMT}:
                 e.write(token.to_outerrs() + "\n")
 
 

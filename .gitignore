@@ -7,3 +7,6 @@ __pycache__/
 # folders
 /inputs
 /outputs
+
+# VSCode
+.vscode/

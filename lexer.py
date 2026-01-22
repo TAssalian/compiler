@@ -31,6 +31,27 @@ nonzero_digits = {
     "5", "6", "7", "8", "9"
 }
 
+single_misc = {
+            "=": TokenType.ASSIGN,
+            "<": TokenType.LT,
+            ">": TokenType.GT,
+            "+": TokenType.PLUS,
+            "-": TokenType.MINUS,
+            "*": TokenType.MULT,
+            "/": TokenType.DIV,
+            "(": TokenType.OPENPAR,
+            ")": TokenType.CLOSEPAR,
+            "{": TokenType.OPENCUBR,
+            "}": TokenType.CLOSECUBR,
+            "[": TokenType.OPENSQBR,
+            "]": TokenType.CLOSESQBR,
+            ";": TokenType.SEMI,
+            ",": TokenType.COMMA,
+            ".": TokenType.DOT,
+            ":": TokenType.COLON,
+        }
+
+
 @dataclass()
 class Lexer:
     text: str
@@ -57,7 +78,7 @@ class Lexer:
         else:
             lexeme = self.current_char
             self._advance()
-            return Token(TokenType.ERROR, lexeme, self.line)
+            return Token(TokenType.INVALIDCHAR, lexeme, self.line)
     
     def _advance(self) -> None: 
         self.pos += 1
@@ -99,7 +120,7 @@ class Lexer:
         elif self._is_float(lexeme):
             lexeme_type = TokenType.FLOATNUM
         else:
-            lexeme_type = TokenType.ERROR
+            lexeme_type = TokenType.INVALIDNUM
         return Token(lexeme_type, lexeme, self.line)
     
     def _consume_number(self) -> str:
@@ -187,7 +208,7 @@ class Lexer:
                 self._advance()
             return Token(TokenType.INLINECMT, lexeme, self.line)
 
-        elif self.current_char == "*":
+        else:
             lexeme += self.current_char
             self._advance()
             start_line = self.line
@@ -206,16 +227,13 @@ class Lexer:
                     break
                 self._advance()
             if not closed:
-                return Token(TokenType.ERROR, lexeme, start_line)
+                return Token(TokenType.INVALIDCMT, lexeme, start_line)
             return Token(TokenType.BLOCKCMT, lexeme, start_line)
-
-        return Token(TokenType.ERROR, lexeme, start_line)
-
 
     def _is_operator_or_punct(self) -> bool:
         if self.current_char is None:
             return False
-        if self.current_char in {"+", "-", "*", "/", "(", ")", "{", "}", "[", "]", ";", ",", ".", ":", "=", "<", ">"}:
+        if self.current_char in single_misc:
             return True
         return False
 
@@ -243,25 +261,4 @@ class Lexer:
 
         char = self.current_char
         self._advance()
-        single_misc = {
-            "=": TokenType.ASSIGN,
-            "<": TokenType.LT,
-            ">": TokenType.GT,
-            "+": TokenType.PLUS,
-            "-": TokenType.MINUS,
-            "*": TokenType.MULT,
-            "/": TokenType.DIV,
-            "(": TokenType.OPENPAR,
-            ")": TokenType.CLOSEPAR,
-            "{": TokenType.OPENCUBR,
-            "}": TokenType.CLOSECUBR,
-            "[": TokenType.OPENSQBR,
-            "]": TokenType.CLOSESQBR,
-            ";": TokenType.SEMI,
-            ",": TokenType.COMMA,
-            ".": TokenType.DOT,
-            ":": TokenType.COLON,
-        }
-        if char in single_misc:
-            return Token(single_misc[char], char, self.line)
-        return Token(TokenType.ERROR, char, self.line)
+        return Token(single_misc[char], char, self.line)
