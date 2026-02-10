@@ -6,18 +6,18 @@ class TokenType(Enum):
     INTNUM = "intnum"
     FLOATNUM = "floatnum"
 
-    EQ = "eq"             
-    NOTEQ = "noteq"        
-    LT = "lt"             
-    GT = "gt"             
-    LEQ = "leq"            
-    GEQ = "geq"            
-    ASSIGN = "assign"  
+    EQ = "eq"         
+    NOTEQ = "noteq"
+    LT = "lt"
+    GT = "gt"   
+    LEQ = "leq"   
+    GEQ = "geq"  
+    ASSIGN = "assign" 
 
-    PLUS = "plus"        
-    MINUS = "minus"   
-    MULT = "mult" 
-    DIV = "div"     
+    PLUS = "plus"   
+    MINUS = "minus" 
+    MULT = "mult"
+    DIV = "div" 
 
     OPENPAR = "openpar" 
     CLOSEPAR = "closepar"  
@@ -54,11 +54,11 @@ class TokenType(Enum):
     MAIN = "main"
     
     BLOCKCMT = "blockcmt"
-    INLINECMT = "inlinecmt"
+    INLINECMT = "inlinecmt" 
     
     INVALIDCHAR = "invalidchar"
     INVALIDNUM = "invalidnum"
-    INVALIDCMT = "invalidcmt"
+    INVALIDCMT = "invalidcmt" 
 
 @dataclass(frozen=True)
 class Token:

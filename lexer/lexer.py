@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from tokens import Token, TokenType
+from lexer.tokens import Token, TokenType
 
 
 reserved_words = {
@@ -49,7 +49,7 @@ single_misc = {
             ",": TokenType.COMMA,
             ".": TokenType.DOT,
             ":": TokenType.COLON,
-        }
+}
 
 
 @dataclass()
@@ -113,7 +113,7 @@ class Lexer:
     
     
     def _get_integer_or_float_token(self) -> Token:
-        lexeme = self._consume_number()
+        lexeme = self._get_number()
 
         if self._is_integer(lexeme):
             lexeme_type = TokenType.INTNUM
@@ -123,7 +123,7 @@ class Lexer:
             lexeme_type = TokenType.INVALIDNUM
         return Token(lexeme_type, lexeme, self.line)
     
-    def _consume_number(self) -> str:
+    def _get_number(self) -> str:
         lexeme = ""
         seen_dot = False
         seen_e = False
