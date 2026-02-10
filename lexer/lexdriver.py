@@ -39,29 +39,35 @@ def run_lexer(input_path: Path, output_dir: Path) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         print("Usage:")
-        print("python lexdriver.py <file.src>")
+        print("python lexdriver.py <file.src> [more files/dirs...]")
         print("or")
-        print("python lexdriver.py <folder/>")
+        print("python lexdriver.py <folder/> [more files/dirs...]")
         sys.exit(1)
 
-    input = Path(sys.argv[1])
-
+    inputs = [Path(arg) for arg in sys.argv[1:]]
     output_dir = Path("outputs")
     output_dir.mkdir(exist_ok=True)
 
-    if input.is_file():
-        run_lexer(input, output_dir)
-        
-    elif input.is_dir():
-        src_files = input.glob("*.src")
+    had_error = False
+    for input_path in inputs:
+        if input_path.is_file():
+            run_lexer(input_path, output_dir)
+            continue
 
-        for src_file in src_files:
-            run_lexer(src_file, output_dir)
+        if input_path.is_dir():
+            src_files = list(input_path.glob("*.src"))
+            if not src_files:
+                print(f"No .src files found in directory: {input_path}")
+            for src_file in src_files:
+                run_lexer(src_file, output_dir)
+            continue
 
-    else:
-        print(f"Not a file or directory error: {input}")
+        print(f"Not a file or directory error: {input_path}")
+        had_error = True
+
+    if had_error:
         sys.exit(1)
 
 
