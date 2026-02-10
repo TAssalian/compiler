@@ -6,10 +6,6 @@
 
 ### Requirements
 - **Python 3.10+**
-- The following files must be available in the same directory:
-  - `lexdriver.py`
-  - `lexer.py`
-  - `tokens.py`
 
 ---
 
@@ -34,40 +30,6 @@ python3 lexdriver.py path/to/folder/
 ```
 
 The driver scans every `*.src` file in the directory and generates the 3 output files for each source file.
-
----
-
-### Output formats
-
-#### `*.outlextokens`
-One token per line:
-
-```
-[type, lexeme, line]
-```
-
-Example:
-```
-[id, myVar, 4]
-[intnum, 123, 4]
-[assign, =, 4]
-[semi, ;, 4]
-```
-
-#### `*.outlextokensflaci`
-One token label per space (used for grammar derivation tools such as Flaci):
-
-```
-id intnum assign semi
-```
-
-#### `*.outlexerrors`
-One lexical error per line:
-
-```
-Lexical error: Invalid lexeme: '@': line 7.
-Lexical error: Invalid lexeme: '012': line 12.
-```
 
 ---
 
