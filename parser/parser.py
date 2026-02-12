@@ -70,16 +70,7 @@ def _expected_lookaheads(non_terminal: str) -> str:
     return ", ".join(expected) if expected else "<none>"
 
 
-# ---------------------------
-# Derivation helpers
-# ---------------------------
-
 def _apply_leftmost_step(form: list[str], non_terminal: str, rhs: list[str]) -> list[str]:
-    """
-    Perform ONE leftmost derivation step:
-    Replace the first occurrence of `non_terminal` in `form`
-    with the right-hand side `rhs`.
-    """
     for i, symbol in enumerate(form):
         if symbol == non_terminal:
             return form[:i] + rhs + form[i + 1 :]
@@ -87,15 +78,8 @@ def _apply_leftmost_step(form: list[str], non_terminal: str, rhs: list[str]) -> 
 
 
 def _format_form(form: list[str]) -> str:
-    """
-    Convert a sentential form into a printable string.
-    """
     return " ".join(form) if form else "epsilon"
 
-
-# ---------------------------
-# Main LL(1) parser
-# ---------------------------
 
 def parse(lexer: Lexer) -> ParseResult:
     stack = ["$", "START"]
