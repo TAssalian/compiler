@@ -450,3 +450,14 @@ terminals = {
     "private",
     "public"
 }
+
+
+def count_non_null_entries(table: dict) -> int:
+    return sum(
+        1
+        for nonterminal, row in table.items()
+        for terminal, production in row.items()
+    )
+    
+count = count_non_null_entries(table)
+print("Non-null LL(1) table entries:", count)
