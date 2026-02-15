@@ -141,7 +141,7 @@ table = {
         "local": ["OPTFUNCBODY0", "do", "REPTFUNCBODY2", "end"]
     },
     "FUNCDEF": {
-        "id": ["FUNCHEAD", "FUNCBODY"],
+        "id": ["FUNCHEAD", "FUNCBODY", "semi"],
     },
     "FUNCHEAD": {
         "id": ["id", "FUNCHEAD1"]

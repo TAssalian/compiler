@@ -135,6 +135,7 @@ def parse(lexer: Lexer) -> ParseResult:
                 stack.pop()
                 stack.extend(reversed(rhs))
 
+                # Find leftmost occurrence of the non-terminal and current sentential form and replace it with the RHS
                 form = _apply_leftmost_step(form, top, rhs)
                 derivation.append(_format_form(form))
             # The parser has a non-terminal on top of the stack, but there is no valid rule for it.
