@@ -146,12 +146,11 @@ def parse(lexer: Lexer) -> ParseResult:
                     f"expected one of: {_expected_lookaheads(top)}."
                 )
 
-                # Set of non-terminals that could go to epsilon.
+                # Set of made up first and follow.
                 # It's ok if the non-terminal at the top of the stack goes away
                 sync_set = {
                     terminal
                     for terminal, rhs in productions.items()
-                    if rhs == []
                 }
 
                 # Want to find out if the problem is the top of the stack that parser is expecting, or the token it is currently seeing in the lookahead
@@ -162,9 +161,10 @@ def parse(lexer: Lexer) -> ParseResult:
                     stack.pop()
                 # Current lookahead makes no sense and cannot end the current non-terminal
                 else:
-                    # Skip one token
-                    advance()
-
+                    # Panic-mode: discard tokens until a synchronization point is found.
+                    while lookahead not in sync_set and lookahead != "$":
+                        advance()
+                    stack.pop()
     if errors:
         derivation.append("Incomplete derivation due to syntax errors.")
 
