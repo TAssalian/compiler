@@ -3,6 +3,7 @@ from frontend.ast.nodes import (
     AddOpNode,
     ArithExprNode,
     ArraySizeNode,
+    AssignOpNode,
     ClassDeclNode,
     ClassListNode,
     ExprNode,
@@ -13,6 +14,7 @@ from frontend.ast.nodes import (
     FuncDeclNode,
     FuncDefNode,
     FuncDefListNode,
+    InheritsNode,
     IdNode,
     IfNode,
     IntNumNode,
@@ -21,7 +23,6 @@ from frontend.ast.nodes import (
     NotNode,
     PlusNode,
     ProgramBlockNode,
-    ParamListNode,
     PrivateNode,
     ProgNode,
     PublicNode,
@@ -97,6 +98,8 @@ def make_multop_node(token):
 def make_relop_node(token):
     semantic_stack.append(RelOpNode(token))
 
+def make_assignop_node(token):
+    semantic_stack.append(AssignOpNode(token))
 
 def make_arraysize_subtree(_token):
     dimensions = _pop_until_epsilon()
@@ -136,8 +139,7 @@ def make_fparam_subtree(_token):
     semantic_stack.append(fparam)
 
 def make_fparams_subtree(_token):
-    nodes = _pop_until_epsilon()
-    params = [node for node in nodes if isinstance(node, FParamNode)]
+    params = _pop_until_epsilon()
     fparams = FParamsNode(token=_token, params=params)
     for param in params:
         fparams.add_child(param)
@@ -149,55 +151,39 @@ def make_empty_fparams_node(token):
 def make_void_type_node(token):
     semantic_stack.append(TypeNode(token))
 
-def make_memberdecl_disambiguate_subtree(_token):
-    top = semantic_stack[-1]
+def make_member_vardecl_subtree(_token):
+    array_size_node = semantic_stack.pop()
+    id_node = semantic_stack.pop()
+    type_id_node = semantic_stack.pop()
+    type_node = TypeNode(type_id_node.token)
 
-    if isinstance(top, ArraySizeNode):
-        array_size_node = semantic_stack.pop()
-        id_node = semantic_stack.pop()
-        type_id_node = semantic_stack.pop()
-        type_node = TypeNode(type_id_node.token)
+    var_decl = VarDeclNode(
+        token=_token,
+        type_node=type_node,
+        id_node=id_node,
+        array_size_node=array_size_node,
+    )
+    var_decl.add_child(type_node)
+    var_decl.add_child(id_node)
+    var_decl.add_child(array_size_node)
+    semantic_stack.append(var_decl)
 
-        var_decl = VarDeclNode(
-            token=_token,
-            type_node=type_node,
-            id_node=id_node,
-            array_size_node=array_size_node,
-        )
-        var_decl.add_child(type_node)
-        var_decl.add_child(id_node)
-        var_decl.add_child(array_size_node)
-        semantic_stack.append(var_decl)
-        return
 
-    if isinstance(top, TypeNode):
-        return_type = semantic_stack.pop()
-        params_fragments = []
-        while semantic_stack and isinstance(semantic_stack[-1], (FParamNode, FParamsNode)):
-            params_fragments.append(semantic_stack.pop())
-        id_node = semantic_stack.pop()
+def make_member_funcdecl_subtree(_token):
+    return_type = semantic_stack.pop()
+    fparams_node = semantic_stack.pop()
+    id_node = semantic_stack.pop()
 
-        params = []
-        for fragment in reversed(params_fragments):
-            if isinstance(fragment, FParamNode):
-                params.append(fragment)
-            elif isinstance(fragment, FParamsNode):
-                params.extend(fragment.params)
-
-        param_list = ParamListNode(token=_token, params=params)
-        for param in params:
-            param_list.add_child(param)
-
-        func_decl = FuncDeclNode(
-            token=_token,
-            id_node=id_node,
-            fparams_node=param_list,
-            return_type_node=return_type,
-        )
-        func_decl.add_child(id_node)
-        func_decl.add_child(param_list)
-        func_decl.add_child(return_type)
-        semantic_stack.append(func_decl)
+    func_decl = FuncDeclNode(
+        token=_token,
+        id_node=id_node,
+        fparams_node=fparams_node,
+        return_type_node=return_type,
+    )
+    func_decl.add_child(id_node)
+    func_decl.add_child(fparams_node)
+    func_decl.add_child(return_type)
+    semantic_stack.append(func_decl)
 
 def make_aparams_subtree(_token):
     args = _pop_until_epsilon()
@@ -227,9 +213,14 @@ def make_expr_subtree(_token):
     semantic_stack.append(node)
 
 def make_relexpr_subtree(_token):
-    children = _pop_until_epsilon()
     node = RelExprNode(token=_token)
-    _attach_children(node, children)
+    right = semantic_stack.pop()
+    relop = semantic_stack.pop()
+    left = semantic_stack.pop()
+    semantic_stack.pop()
+    node.add_child(left)
+    node.add_child(relop)
+    node.add_child(right)
     semantic_stack.append(node)
 
 def make_variable_subtree(_token):
@@ -245,21 +236,24 @@ def make_statement_subtree(_token):
     semantic_stack.append(node)
 
 def make_return_subtree(_token):
-    children = _pop_until_epsilon()
     node = ReturnNode(token=_token)
-    _attach_children(node, children)
+    expr = semantic_stack.pop()
+    semantic_stack.pop()
+    node.add_child(expr)
     semantic_stack.append(node)
 
 def make_write_subtree(_token):
-    children = _pop_until_epsilon()
     node = WriteNode(token=_token)
-    _attach_children(node, children)
+    expr = semantic_stack.pop()
+    semantic_stack.pop()
+    node.add_child(expr)
     semantic_stack.append(node)
 
 def make_read_subtree(_token):
-    children = _pop_until_epsilon()
     node = ReadNode(token=_token)
-    _attach_children(node, children)
+    variable = semantic_stack.pop()
+    semantic_stack.pop()
+    node.add_child(variable)
     semantic_stack.append(node)
 
 def make_while_subtree(_token):
@@ -288,35 +282,16 @@ def make_funcbody_subtree(_token):
 
 def make_funcdef_subtree(_token):
     children = _pop_until_epsilon()
-    params = []
-    normalized_children = []
-    has_param_section = False
-
-    for child in children:
-        if isinstance(child, FParamNode):
-            has_param_section = True
-            params.append(child)
-            if not normalized_children or normalized_children[-1] != "__param_list__":
-                normalized_children.append("__param_list__")
-            continue
-        if isinstance(child, FParamsNode):
-            has_param_section = True
-            params.extend(child.params)
-            if not normalized_children or normalized_children[-1] != "__param_list__":
-                normalized_children.append("__param_list__")
-            continue
-        normalized_children.append(child)
-
-    if has_param_section:
-        param_list = ParamListNode(token=_token, params=params)
-        for param in params:
-            param_list.add_child(param)
-        children = [param_list if child == "__param_list__" else child for child in normalized_children]
-    else:
-        children = normalized_children
+    func_body = children.pop()
+    return_type = children.pop()
+    fparams_node = children.pop()
 
     node = FuncDefNode(token=_token)
-    _attach_children(node, children)
+    for child in children:
+        node.add_child(child)
+    node.add_child(fparams_node)
+    node.add_child(return_type)
+    node.add_child(func_body)
     semantic_stack.append(node)
 
 def make_classdecl_subtree(_token):
@@ -325,25 +300,27 @@ def make_classdecl_subtree(_token):
     _attach_children(node, children)
     semantic_stack.append(node)
 
+def make_inherits_subtree(_token):
+    id_node = semantic_stack.pop()
+    node = InheritsNode(token=_token, id_node=id_node)
+    node.add_child(id_node)
+    semantic_stack.append(node)
+
 def make_prog_subtree(_token):
     children = _pop_until_epsilon()
     node = ProgNode(token=_token)
     class_list = ClassListNode(token=_token)
     funcdef_list = FuncDefListNode(token=_token)
     program_block = ProgramBlockNode(token=_token)
+    main_body = children.pop()
 
     for child in children:
         if isinstance(child, ClassDeclNode):
             class_list.add_child(child)
-            continue
-        if isinstance(child, FuncDefNode):
+        else:
             funcdef_list.add_child(child)
-            continue
-        if isinstance(child, FuncBodyNode):
-            main_body_children = list(child.iter_children())
-            for main_child in main_body_children:
-                program_block.add_child(main_child)
-            continue
+
+    for child in main_body.iter_children():
         program_block.add_child(child)
 
     node.add_child(class_list)
@@ -352,8 +329,6 @@ def make_prog_subtree(_token):
     semantic_stack.append(node)
 
 def make_start_subtree(_token):
-    if not semantic_stack:
-        return
     child = semantic_stack.pop()
     node = StartNode(token=_token)
     node.add_child(child)
@@ -379,7 +354,9 @@ semantic_actions = {
     "#make_addop_node": make_addop_node,
     "#make_multop_node": make_multop_node,
     "#make_relop_node": make_relop_node,
-    "#make_memberdecl_disambiguate_subtree": make_memberdecl_disambiguate_subtree,
+    "#make_assignop_node": make_assignop_node,
+    "#make_member_vardecl_subtree": make_member_vardecl_subtree,
+    "#make_member_funcdecl_subtree": make_member_funcdecl_subtree,
     "#make_aparams_subtree": make_aparams_subtree,
     "#make_empty_aparams_node": make_empty_aparams_node,
     "#make_term_subtree": make_term_subtree,
@@ -397,6 +374,7 @@ semantic_actions = {
     "#make_funcbody_subtree": make_funcbody_subtree,
     "#make_funcdef_subtree": make_funcdef_subtree,
     "#make_classdecl_subtree": make_classdecl_subtree,
+    "#make_inherits_subtree": make_inherits_subtree,
     "#make_prog_subtree": make_prog_subtree,
     "#make_start_subtree": make_start_subtree
 }

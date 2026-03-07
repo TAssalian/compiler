@@ -8,7 +8,7 @@ from frontend.parser.parser import parse
 
 def main() -> None:
     if len(sys.argv) != 2:
-        print("Usage: python -m frontend.ast.ast_driver <input_dir>")
+        print("Usage: python main.py <input_dir>")
         sys.exit(1)
 
     input_dir = Path(sys.argv[1])
@@ -23,14 +23,13 @@ def main() -> None:
     if not src_files:
         print(f"No .src files found in directory: {input_dir}")
         return
-
+    
     for src_file in src_files:
         lexer = Lexer(text=src_file.read_text(encoding="utf-8"))
         result = parse(lexer)
         out_ast = output_dir / f"{src_file.stem}.outast"
 
         ast_root = result.ast_stack[-1]
-        print(len(result.ast_stack))
 
         if result.success:
             out_ast.write_text(ast_to_text(ast_root), encoding="utf-8")

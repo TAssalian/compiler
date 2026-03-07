@@ -10,7 +10,7 @@ def ast_to_text(root: Node) -> str:
     lines: list[str] = []
 
     def walk(node: Node, depth: int) -> None:
-        lines.append(f"{' | ' * depth}{_node_label(node)}")
+        lines.append(f"{'| ' * depth}{_node_label(node)}")
         for child in node.iter_children():
             walk(child, depth + 1)
 

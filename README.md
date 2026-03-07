@@ -12,10 +12,10 @@
 ### Run on a single `.src` file
 
 ```bash
-python3 lexdriver.py path/to/file.src
+python3 -m frontend.lexer.lexer_driver path/to/file.src
 ```
 
-This generates 3 output files in the **same folder as the input file**:
+This generates 3 output files in the `outputs/` folder:
 
 - `file.outlextokens` — token list (format: `[type, lexeme, line]`)
 - `file.outlextokensflaci` — token stream formatted for Flaci
@@ -26,10 +26,18 @@ This generates 3 output files in the **same folder as the input file**:
 ### Run on a directory of `.src` files
 
 ```bash
-python3 lexdriver.py path/to/folder/
+python3 -m frontend.lexer.lexer_driver path/to/folder/
 ```
 
 The driver scans every `*.src` file in the directory and generates the 3 output files for each source file.
+
+### Build ASTs from a directory
+
+```bash
+python3 main.py path/to/folder/
+```
+
+This runs the AST driver and writes `outputs/*.outast`.
 
 ---
 
@@ -81,9 +89,9 @@ Defines the data structures returned by the lexer.
   - `line` (starting line number)
 
 Output formatting is centralized in `Token` to keep results consistent:
-- `to_outtokens()` → `[type, lexeme, line]`
-- `to_flaci()` → token stream label
-- `to_outerrs()` → lexical error message format
+- `to_outtokens()` == `[type, lexeme, line]`
+- `to_flaci()` == token stream label
+- `to_outerrs()` == lexical error message format
 
 ---
 
@@ -101,15 +109,15 @@ Invalid inputs generate error tokens **without stopping the scan**, ensuring com
 
 ---
 
-#### `lexdriver.py`
+#### `lexer_driver.py`
 Command-line entry point.
 
 - Accepts either a `.src` file or a directory containing `.src` files
 - Runs the lexer on each file
 - Writes the required outputs per source file:
-  - `*.outlextokens`
-  - `*.outlextokensflaci`
-  - `*.outlexerrors`
+  - `outputs/*.outlextokens`
+  - `outputs/*.outlextokensflaci`
+  - `outputs/*.outlexerrors`
 
 ---
 

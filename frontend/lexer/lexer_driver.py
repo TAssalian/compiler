@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
-from lexer import Lexer
-from tokens import TokenType
+
+from frontend.lexer.lexer import Lexer
+from frontend.lexer.tokens import TokenType
 
 
 def run_lexer(input_path: Path, output_dir: Path) -> None:
@@ -15,8 +16,8 @@ def run_lexer(input_path: Path, output_dir: Path) -> None:
     base_name = input_path.stem
 
     out_tokens = output_dir / f"{base_name}.outlextokens"
-    out_flaci  = output_dir / f"{base_name}.outlextokensflaci"
-    out_errs   = output_dir / f"{base_name}.outlexerrors"
+    out_flaci = output_dir / f"{base_name}.outlextokensflaci"
+    out_errs = output_dir / f"{base_name}.outlexerrors"
 
     with (
         open(out_tokens, "w", encoding="utf-8") as t,
@@ -28,7 +29,7 @@ def run_lexer(input_path: Path, output_dir: Path) -> None:
             token = lexer.get_next_token()
             if token is None:
                 break
-        
+
             t.write(token.to_outtokens() + "\n")
             if not first_flaci:
                 f.write(" ")
@@ -41,9 +42,9 @@ def run_lexer(input_path: Path, output_dir: Path) -> None:
 def main() -> None:
     if len(sys.argv) < 2:
         print("Usage:")
-        print("python lexdriver.py <file.src> [more files/dirs...]")
+        print("python -m frontend.lexer.lexer_driver <file.src> [more files/dirs...]")
         print("or")
-        print("python lexdriver.py <folder/> [more files/dirs...]")
+        print("python -m frontend.lexer.lexer_driver <folder/> [more files/dirs...]")
         sys.exit(1)
 
     inputs = [Path(arg) for arg in sys.argv[1:]]

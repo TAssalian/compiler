@@ -1,8 +1,8 @@
 import sys
 from pathlib import Path
 
-from lexer.lexer import Lexer
-from parser.parser import parse 
+from frontend.lexer.lexer import Lexer
+from frontend.parser.parser import parse
 
 
 def run_parser(input_path: Path, output_dir: Path) -> None:
@@ -24,7 +24,7 @@ def run_parser(input_path: Path, output_dir: Path) -> None:
 def main() -> None:
     if len(sys.argv) < 2:
         print("Usage:")
-        print("python parserdriver.py <file.src> [more files/dirs...]")
+        print("python -m frontend.parser.parser_driver <file.src> [more files/dirs...]")
         sys.exit(1)
 
     output_dir = Path("outputs")

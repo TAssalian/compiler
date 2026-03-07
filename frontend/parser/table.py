@@ -21,16 +21,16 @@ table = {
     },
     # Class declaration with attributes and methohds
     "CLASSDECL": {
-        "class": ["class", "id", "#make_id_node", "#push_epsilon", "OPTCLASSDECL2", "lcurbr", "REPT_CLASS_MEMBERS", "rcurbr", "semi", "#make_classdecl_subtree"]
+        "class": ["class", "#push_epsilon", "id", "#make_id_node", "OPTCLASSDECL2", "lcurbr", "REPT_CLASS_MEMBERS", "rcurbr", "semi", "#make_classdecl_subtree"]
     },
     # Optional inheritance clause of class declaration
     "OPTCLASSDECL2": {
-        "inherits": ["inherits", "id", "#make_id_node", "REPT_INHERITS_TAIL"],
+        "inherits": ["inherits", "id", "#make_id_node", "#make_inherits_subtree", "REPT_INHERITS_TAIL"],
         "lcurbr": []
     },
     # Parses zero or more inherited classes names separated by commas
     "REPT_INHERITS_TAIL": {
-        "comma": ["comma", "id", "#make_id_node", "REPT_INHERITS_TAIL"],
+        "comma": ["comma", "id", "#make_id_node", "#make_inherits_subtree", "REPT_INHERITS_TAIL"],
         "lcurbr": []
     },
     # Zero or more member declarations inside class body
@@ -46,14 +46,14 @@ table = {
     },
     # Parses one class member declaration, either data member or method declaration.
     "MEMBERDECL": {
-        "id": ["id", "#make_id_node", "MEMBERDECL_DISAMBIG", "#make_memberdecl_disambiguate_subtree"],
+        "id": ["id", "#make_id_node", "MEMBERDECL_DISAMBIG"],
         "float": ["TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_VARDECL_DIMS", "#make_arraysize_subtree", "semi", "#make_vardecl_subtree"],
         "integer": ["TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_VARDECL_DIMS", "#make_arraysize_subtree", "semi", "#make_vardecl_subtree"]
     },
     # Disambiguates class member forms that start with an identifier between variable vs function declaration
     "MEMBERDECL_DISAMBIG": {
-        "id": ["id", "#make_id_node", "#push_epsilon", "REPT_VARDECL_DIMS", "#make_arraysize_subtree", "semi"],
-        "lpar": ["lpar", "FPARAMS", "rpar", "colon", "RETTYPE", "semi"]
+        "id": ["id", "#make_id_node", "#push_epsilon", "REPT_VARDECL_DIMS", "#make_arraysize_subtree", "semi", "#make_member_vardecl_subtree"],
+        "lpar": ["lpar", "FPARAMS", "rpar", "colon", "RETTYPE", "semi", "#make_member_funcdecl_subtree"]
     },
     # Zero or more function definitions
     "REPT_FUNCDEFS": {
@@ -90,9 +90,9 @@ table = {
     },
     # Parses the full parameter list in function signature
     "FPARAMS": {
-        "id": ["TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_FPARAM_DIMS", "#make_arraysize_subtree", "#make_fparam_subtree", "#push_epsilon", "REPT_FPARAMS", "#make_fparams_subtree"],
-        "float": ["TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_FPARAM_DIMS", "#make_arraysize_subtree", "#make_fparam_subtree", "#push_epsilon", "REPT_FPARAMS", "#make_fparams_subtree"],
-        "integer": ["TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_FPARAM_DIMS", "#make_arraysize_subtree", "#make_fparam_subtree", "#push_epsilon", "REPT_FPARAMS", "#make_fparams_subtree"],
+        "id": ["#push_epsilon", "TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_FPARAM_DIMS", "#make_arraysize_subtree", "#make_fparam_subtree", "REPT_FPARAMS", "#make_fparams_subtree"],
+        "float": ["#push_epsilon", "TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_FPARAM_DIMS", "#make_arraysize_subtree", "#make_fparam_subtree", "REPT_FPARAMS", "#make_fparams_subtree"],
+        "integer": ["#push_epsilon", "TYPE", "id", "#make_id_node", "#push_epsilon", "REPT_FPARAM_DIMS", "#make_arraysize_subtree", "#make_fparam_subtree", "REPT_FPARAMS", "#make_fparams_subtree"],
         "rpar": ["#make_empty_fparams_node"]
     },
     # Parses zero or more array dimensions attached to a parameter in a function
@@ -188,7 +188,7 @@ table = {
     },
     # Assignment operator token
     "ASSIGNOP": {
-        "equal": ["equal"]
+        "equal": ["equal", "#make_assignop_node"]
     },
     # Parses optional member chaining after a function call identifier statement.
     "STATEMENTID_CALL_TAIL": {

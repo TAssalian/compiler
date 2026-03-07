@@ -1,11 +1,8 @@
 from dataclasses import dataclass
-try:
-    from frontend.lexer.tokens import Token, TokenType
-except ModuleNotFoundError:
-    from lexer.tokens import Token, TokenType
+from frontend.lexer.tokens import Token, TokenType
 
 
-reserved_words = {
+RESERVED_WORDS = {
     "if",
     "then",
     "else",
@@ -29,12 +26,12 @@ reserved_words = {
     "main"
 }
 
-nonzero_digits = {
+NONZERO_DIGITS = {
     "1", "2", "3", "4", 
     "5", "6", "7", "8", "9"
 }
 
-single_misc = {
+SINGLE_MISC = {
     "=": TokenType.ASSIGN,
     "<": TokenType.LT,
     ">": TokenType.GT,
@@ -55,17 +52,17 @@ single_misc = {
 }
 
 
-@dataclass()
-class Lexer: 
+@dataclass
+class Lexer:
     text: str
     pos: int = -1
-    current_char: int | None = None
+    current_char: str | None = None
     line: int = 1
     
     def __post_init__(self) -> None:
         self._advance()
     
-    def get_next_token(self) -> Token:
+    def get_next_token(self) -> Token | None:
         self._skip_whitespace()
 
         if self.current_char is None:
@@ -101,7 +98,7 @@ class Lexer:
     def _get_id_or_reserved_word_token(self) -> Token:
         lexeme = self._get_id()
 
-        if lexeme in reserved_words:
+        if lexeme in RESERVED_WORDS:
             lexeme_type = TokenType[lexeme.upper()]
         else:
             lexeme_type = TokenType.ID
@@ -159,9 +156,9 @@ class Lexer:
         if lexeme == "0":
             return True
         elif len(lexeme) == 1:
-            return lexeme[0] in nonzero_digits
+            return lexeme[0] in NONZERO_DIGITS
         else:
-            return lexeme[0] in nonzero_digits and lexeme[1:].isdigit()
+            return lexeme[0] in NONZERO_DIGITS and lexeme[1:].isdigit()
 
     def _is_float(self, lexeme: str) -> bool:
         if lexeme.count("e") > 1:
@@ -192,7 +189,7 @@ class Lexer:
         if not lexeme.startswith("."):
             return False
         end = lexeme[1:]
-        return end.isdigit() and end[-1] in nonzero_digits
+        return end.isdigit() and end[-1] in NONZERO_DIGITS
 
 
     def _is_comment_token(self) -> bool:
@@ -239,7 +236,7 @@ class Lexer:
     def _is_operator_or_punct(self) -> bool:
         if self.current_char is None:
             return False
-        if self.current_char in single_misc:
+        if self.current_char in SINGLE_MISC:
             return True
         return False
 
@@ -267,4 +264,4 @@ class Lexer:
 
         char = self.current_char
         self._advance()
-        return Token(single_misc[char], char, self.line)
+        return Token(SINGLE_MISC[char], char, self.line)

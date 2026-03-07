@@ -2,7 +2,6 @@ from frontend.ast.nodes.arrays.array_size_node import ArraySizeNode
 from frontend.ast.nodes.declarations.fparam_node import FParamNode
 from frontend.ast.nodes.declarations.fparams_node import FParamsNode
 from frontend.ast.nodes.declarations.funcdecl_node import FuncDeclNode
-from frontend.ast.nodes.declarations.param_list_node import ParamListNode
 from frontend.ast.nodes.declarations.vardecl_node import VarDeclNode
 from frontend.ast.nodes.expressions.aparams_node import AParamsNode
 from frontend.ast.nodes.expressions.arithexpr_node import ArithExprNode
@@ -16,6 +15,7 @@ from frontend.ast.nodes.expressions.term_node import TermNode
 from frontend.ast.nodes.modifiers.private_node import PrivateNode
 from frontend.ast.nodes.modifiers.public_node import PublicNode
 from frontend.ast.nodes.operators.addop_node import AddOpNode
+from frontend.ast.nodes.operators.assignop_node import AssignOpNode
 from frontend.ast.nodes.operators.multop_node import MultOpNode
 from frontend.ast.nodes.operators.not_node import NotNode
 from frontend.ast.nodes.operators.relop_node import RelOpNode
@@ -24,6 +24,7 @@ from frontend.ast.nodes.program.class_list_node import ClassListNode
 from frontend.ast.nodes.program.funcbody_node import FuncBodyNode
 from frontend.ast.nodes.program.funcdef_node import FuncDefNode
 from frontend.ast.nodes.program.funcdef_list_node import FuncDefListNode
+from frontend.ast.nodes.program.inherits_node import InheritsNode
 from frontend.ast.nodes.program.prog_node import ProgNode
 from frontend.ast.nodes.program.program_block_node import ProgramBlockNode
 from frontend.ast.nodes.program.start_node import StartNode
@@ -41,6 +42,7 @@ from frontend.ast.nodes.type.type_node import TypeNode
 __all__ = [
     "AParamsNode",
     "AddOpNode",
+    "AssignOpNode",
     "ArithExprNode",
     "ArraySizeNode",
     "ClassDeclNode",
@@ -53,13 +55,13 @@ __all__ = [
     "FuncDeclNode",
     "FuncDefNode",
     "FuncDefListNode",
+    "InheritsNode",
     "IdNode",
     "IfNode",
     "IntNumNode",
     "MinusNode",
     "MultOpNode",
     "NotNode",
-    "ParamListNode",
     "PlusNode",
     "PrivateNode",
     "ProgNode",
