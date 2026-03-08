@@ -28,10 +28,9 @@ def main() -> None:
         lexer = Lexer(text=src_file.read_text(encoding="utf-8"))
         result = parse(lexer)
         out_ast = output_dir / f"{src_file.stem}.outast"
-
-        ast_root = result.ast_stack[-1]
-
-        if result.success:
+        
+        if result.success and result.ast_root is not None:
+            ast_root = result.ast_root
             out_ast.write_text(ast_to_text(ast_root), encoding="utf-8")
             print(f"[OK] AST built: {src_file.name}")
         else:

@@ -360,7 +360,8 @@ def make_prog_subtree(_token):
         else:
             funcdef_list.add_child(child)
 
-    for child in main_body.iter_children():
+    # Snapshot children before reparenting; add_child mutates sibling links.
+    for child in list(main_body.iter_children()):
         program_block.add_child(child)
 
     node.add_child(class_list)

@@ -1,7 +1,8 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from frontend.lexer.lexer import Lexer
 from frontend.lexer.tokens import Token, TokenType
 from frontend.parser.table import table
+from frontend.ast.nodes.program.start_node import StartNode
 
 
 from frontend.ast.semantic_actions import semantic_actions, semantic_stack
@@ -36,7 +37,7 @@ class ParseResult:
     success: bool
     errors: list[str]
     derivation: list[str]
-    ast_stack: list = field(default_factory=list)
+    ast_root: StartNode | None = None
 
 
 def _next_non_comment_token(lexer: Lexer):
@@ -164,9 +165,14 @@ def parse(lexer: Lexer) -> ParseResult:
     if errors:
         derivation.append("Incomplete derivation due to syntax errors.")
 
+    ast_root = semantic_stack[-1] if semantic_stack else None
+    if ast_root is not None and not isinstance(ast_root, StartNode):
+        errors.append("Semantic error: parse completed without a StartNode root.")
+        ast_root = None
+
     return ParseResult(
         success=not errors,
         errors=errors,
         derivation=derivation,
-        ast_stack=list(semantic_stack),
+        ast_root=ast_root,
     )
