@@ -1,12 +1,10 @@
 from frontend.ast.nodes import (
     AParamsNode,
     AddOpNode,
-    ArithExprNode,
     ArraySizeNode,
     AssignOpNode,
     ClassDeclNode,
     ClassListNode,
-    ExprNode,
     FParamNode,
     FParamsNode,
     FloatNumNode,
@@ -15,6 +13,7 @@ from frontend.ast.nodes import (
     FuncDefNode,
     FuncDefListNode,
     InheritsNode,
+    IndexNode,
     IdNode,
     IfNode,
     IntNumNode,
@@ -27,13 +26,11 @@ from frontend.ast.nodes import (
     ProgNode,
     PublicNode,
     ReadNode,
-    RelExprNode,
     RelOpNode,
     ReturnNode,
     StartNode,
     StatBlockNode,
     StatementNode,
-    TermNode,
     TypeNode,
     VarDeclNode,
     VariableNode,
@@ -57,6 +54,62 @@ def _pop_until_epsilon():
 def _attach_children(parent, children):
     for child in children:
         parent.add_child(child)
+
+
+def _build_expression(children, operator_type):
+    if not children:
+        return None
+
+    index = 0
+    if isinstance(children[index], (MinusNode, PlusNode, NotNode)):
+        root = children[index]
+        index += 1
+        if root.first_child is None:
+            operand = children[index]
+            index += 1
+
+            while index < len(children) and not isinstance(children[index], operator_type):
+                operand.add_child(children[index])
+                index += 1
+
+            root.add_child(operand)
+    else:
+        root = children[index]
+        index += 1
+
+        while index < len(children) and not isinstance(children[index], operator_type):
+            root.add_child(children[index])
+            index += 1
+
+    while index < len(children):
+        operator = children[index]
+        index += 1
+
+        if isinstance(children[index], (MinusNode, PlusNode, NotNode)):
+            right = children[index]
+            index += 1
+            if right.first_child is None:
+                operand = children[index]
+                index += 1
+
+                while index < len(children) and not isinstance(children[index], operator_type):
+                    operand.add_child(children[index])
+                    index += 1
+
+                right.add_child(operand)
+        else:
+            right = children[index]
+            index += 1
+
+            while index < len(children) and not isinstance(children[index], operator_type):
+                right.add_child(children[index])
+                index += 1
+
+        operator.add_child(root)
+        operator.add_child(right)
+        root = operator
+
+    return root
 
 # create a type leaf node and push it to the semantic stack
 def make_type_node(token):
@@ -217,38 +270,43 @@ def make_aparams_subtree(_token):
 def make_empty_aparams_node(token):
     semantic_stack.append(AParamsNode(token=token, args=[]))
 
+
+def make_index_subtree(_token):
+    children = _pop_until_epsilon()
+    node = IndexNode(token=_token)
+    _attach_children(node, children)
+    semantic_stack.append(node)
+
 # build a term subtree from factors and multiplicative operators
 def make_term_subtree(_token):
     children = _pop_until_epsilon()
-    node = TermNode(token=_token)
-    _attach_children(node, children)
-    semantic_stack.append(node)
+    root = _build_expression(children, MultOpNode)
+    if root is not None:
+        semantic_stack.append(root)
 
 # build an arithmetic expression subtree
 def make_arithexpr_subtree(_token):
     children = _pop_until_epsilon()
-    node = ArithExprNode(token=_token)
-    _attach_children(node, children)
-    semantic_stack.append(node)
+    root = _build_expression(children, AddOpNode)
+    if root is not None:
+        semantic_stack.append(root)
 
 # build an expression subtree, top-level wrapper combining arithexpr with relexpr
 def make_expr_subtree(_token):
     children = _pop_until_epsilon()
-    node = ExprNode(token=_token)
-    _attach_children(node, children)
-    semantic_stack.append(node)
+    root = _build_expression(children, RelOpNode)
+    if root is not None:
+        semantic_stack.append(root)
 
 # build a relational expression subtree
 def make_relexpr_subtree(_token):
-    node = RelExprNode(token=_token)
     right = semantic_stack.pop()
     relop = semantic_stack.pop()
     left = semantic_stack.pop()
     semantic_stack.pop()
-    node.add_child(left)
-    node.add_child(relop)
-    node.add_child(right)
-    semantic_stack.append(node)
+    relop.add_child(left)
+    relop.add_child(right)
+    semantic_stack.append(relop)
 
 # build a variable that's being accessed/assigned subtree
 def make_variable_subtree(_token):
@@ -401,6 +459,7 @@ semantic_actions = {
     "#make_member_funcdecl_subtree": make_member_funcdecl_subtree,
     "#make_aparams_subtree": make_aparams_subtree,
     "#make_empty_aparams_node": make_empty_aparams_node,
+    "#make_index_subtree": make_index_subtree,
     "#make_term_subtree": make_term_subtree,
     "#make_arithexpr_subtree": make_arithexpr_subtree,
     "#make_expr_subtree": make_expr_subtree,
