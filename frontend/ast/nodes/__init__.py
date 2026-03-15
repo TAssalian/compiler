@@ -27,6 +27,7 @@ from frontend.ast.nodes.program.funcdef_list_node import FuncDefListNode
 from frontend.ast.nodes.program.inherits_node import InheritsNode
 from frontend.ast.nodes.program.prog_node import ProgNode
 from frontend.ast.nodes.program.program_block_node import ProgramBlockNode
+from frontend.ast.nodes.references.index_node import IndexNode
 from frontend.ast.nodes.program.start_node import StartNode
 from frontend.ast.nodes.references.id_node import IdNode
 from frontend.ast.nodes.references.variable_node import VariableNode
@@ -56,6 +57,7 @@ __all__ = [
     "FuncDefNode",
     "FuncDefListNode",
     "InheritsNode",
+    "IndexNode",
     "IdNode",
     "IfNode",
     "IntNumNode",

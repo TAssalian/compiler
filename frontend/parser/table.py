@@ -388,7 +388,7 @@ table = {
     },
     # used when parsing one array index operation
     "INDICE": {
-        "lsqbr": ["lsqbr", "ARITHEXPR", "rsqbr"]
+        "lsqbr": ["lsqbr", "#push_epsilon", "ARITHEXPR", "rsqbr", "#make_index_subtree"]
     },
     # used when parsing actual parameters in a function call
     "APARAMS": {
