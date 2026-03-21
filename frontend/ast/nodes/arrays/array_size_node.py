@@ -6,4 +6,4 @@ from frontend.ast.nodes.expressions.intnum_node import IntNumNode
 
 @dataclass
 class ArraySizeNode(Node):
-    dimensions: list[IntNumNode] = field(default_factory=list)
+    dimensions: list[IntNumNode | None] = field(default_factory=list)

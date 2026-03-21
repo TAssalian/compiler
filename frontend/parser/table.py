@@ -128,7 +128,7 @@ table = {
     },
     # used when parsing the optional bound inside one array dimension
     "ARRAYSIZE_BOUND": {
-        "rsqbr": ["rsqbr"],
+        "rsqbr": ["#make_empty_dimension_marker", "rsqbr"],
         "intnum": ["intnum", "#make_intnum_node", "rsqbr"]
     },
     

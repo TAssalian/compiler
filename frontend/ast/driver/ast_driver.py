@@ -18,7 +18,6 @@ def main() -> None:
 
     output_dir = Path("outputs")
     output_dir.mkdir(exist_ok=True)
-
     src_files = sorted(input_dir.glob("*.src"))
     if not src_files:
         print(f"No .src files found in directory: {input_dir}")

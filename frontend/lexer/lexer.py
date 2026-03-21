@@ -82,7 +82,10 @@ class Lexer:
     
     def _advance(self) -> None: 
         self.pos += 1
-        self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
+        if self.pos < len(self.text):
+            self.current_char = self.text[self.pos]
+        else:
+            self.current_char = None
     
     def _skip_whitespace(self) -> None:
         while self.current_char and self.current_char.isspace():
@@ -92,7 +95,9 @@ class Lexer:
     
     def _look_ahead(self) -> str | None:
         next_pos = self.pos + 1
-        return self.text[next_pos] if next_pos < len(self.text) else None
+        if next_pos < len(self.text):
+            return self.text[next_pos]
+        return None
     
     
     def _get_id_or_reserved_word_token(self) -> Token:

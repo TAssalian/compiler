@@ -66,7 +66,9 @@ def _describe_token(token) -> str:
 
 def _expected_lookaheads(non_terminal: str) -> str:
     expected = sorted(table[non_terminal].keys())
-    return ", ".join(expected) if expected else "<none>"
+    if expected:
+        return ", ".join(expected)
+    return "<none>"
 
 
 def _apply_leftmost_step(form: list[str], non_terminal: str, rhs: list[str]) -> list[str]:
@@ -77,7 +79,9 @@ def _apply_leftmost_step(form: list[str], non_terminal: str, rhs: list[str]) -> 
 
 
 def _format_form(form: list[str]) -> str:
-    return " ".join(form) if form else "epsilon"
+    if form:
+        return " ".join(form)
+    return "epsilon"
 
 
 def parse(lexer: Lexer) -> ParseResult:
@@ -97,7 +101,9 @@ def parse(lexer: Lexer) -> ParseResult:
         lookahead = _lexer_to_terminal(token)
 
     def line_of_current() -> int:
-        return token.line if token is not None else -1
+        if token is not None:
+            return token.line
+        return -1
 
 
     while stack and stack[-1] != "$":
@@ -140,10 +146,9 @@ def parse(lexer: Lexer) -> ParseResult:
                     f"expected one of: {_expected_lookaheads(top)}."
                 )
 
-                sync_set = {
-                    terminal
-                    for terminal, rhs in productions.items()
-                }
+                sync_set = set()
+                for terminal in productions:
+                    sync_set.add(terminal)
             
                 if lookahead in sync_set or lookahead == "$":
                     stack.pop()
@@ -165,7 +170,9 @@ def parse(lexer: Lexer) -> ParseResult:
     if errors:
         derivation.append("Incomplete derivation due to syntax errors.")
 
-    ast_root = semantic_stack[-1] if semantic_stack else None
+    ast_root = None
+    if semantic_stack:
+        ast_root = semantic_stack[-1]
     if ast_root is not None and not isinstance(ast_root, StartNode):
         errors.append("Semantic error: parse completed without a StartNode root.")
         ast_root = None
