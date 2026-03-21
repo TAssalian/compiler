@@ -47,7 +47,9 @@ def main() -> None:
         print("python -m frontend.lexer.lexer_driver <folder/> [more files/dirs...]")
         sys.exit(1)
 
-    inputs = [Path(arg) for arg in sys.argv[1:]]
+    inputs = []
+    for arg in sys.argv[1:]:
+        inputs.append(Path(arg))
     output_dir = Path("outputs")
     output_dir.mkdir(exist_ok=True)
 

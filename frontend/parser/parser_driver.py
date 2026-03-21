@@ -30,7 +30,9 @@ def main() -> None:
     output_dir = Path("outputs")
     output_dir.mkdir(exist_ok=True)
 
-    inputs = [Path(arg) for arg in sys.argv[1:]]
+    inputs = []
+    for arg in sys.argv[1:]:
+        inputs.append(Path(arg))
     had_error = False
 
     for input_path in inputs:

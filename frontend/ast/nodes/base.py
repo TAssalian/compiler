@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterator
+from typing import TYPE_CHECKING, Any, Iterator
 
 from frontend.lexer.tokens import Token
+
+if TYPE_CHECKING:
+    from backend.symbols import SymbolEntry, SymbolTable
 
 
 @dataclass
@@ -14,6 +17,8 @@ class Node:
     last_child: Node | None = None
     prev_sibling: Node | None = None
     next_sibling: Node | None = None
+    symtab: SymbolTable | None = None
+    symtab_entry: SymbolEntry | None = None # Acts as direct pointer from AST node to its semantic meaning instead of having to perform re-lookups
 
     def add_child(self, child: Node) -> None:
         child.parent = self
@@ -32,3 +37,10 @@ class Node:
         while current is not None:
             yield current
             current = current.next_sibling
+
+    def accept(self, visitor: Any) -> Any:
+        method_name = f"visit_{self.__class__.__name__}" # Get's method name dynamically
+        visit_func = getattr(visitor, method_name, None) # Check whether specific visitor subclass has that method or not.
+        if visit_func is None:
+            return visitor.generic_visit(self)
+        return visit_func(self)

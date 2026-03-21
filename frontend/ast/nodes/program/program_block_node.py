@@ -1,8 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from frontend.ast.nodes.base import Node
+from frontend.ast.nodes.declarations.vardecl_node import VarDeclNode
 
 
 @dataclass
 class ProgramBlockNode(Node):
-    pass
+    local_vars: list[VarDeclNode] = field(default_factory=list)
+    

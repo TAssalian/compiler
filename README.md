@@ -37,7 +37,16 @@ The driver scans every `*.src` file in the directory and generates the 3 output 
 python3 main.py path/to/folder/
 ```
 
-This runs the AST driver and writes `outputs/*.outast`.
+This runs semantic analysis and writes:
+
+- `outputs/*.outsymboltables`
+- `outputs/*.outsemanticerrors`
+
+To generate ASTs only:
+
+```bash
+python3 -m frontend.ast.driver.ast_driver path/to/folder/
+```
 
 ---
 

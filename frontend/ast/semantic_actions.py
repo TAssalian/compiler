@@ -41,6 +41,7 @@ from frontend.ast.nodes import (
 
 semantic_stack = []
 EPSILON = object()
+EMPTY_DIMENSION = object()
 
 def _pop_until_epsilon():
     nodes = []
@@ -169,10 +170,23 @@ def make_assignop_node(token):
 
 # combine arraysize/dimension nodes into an array size subtree
 def make_arraysize_subtree(_token):
-    dimensions = _pop_until_epsilon()
-    dim_list = ArraySizeNode(token=_token, dimensions=dimensions)
-    _attach_children(dim_list, dimensions)
+    parts = _pop_until_epsilon()
+    dimensions = []
+    for part in parts:
+        if part is EMPTY_DIMENSION:
+            dimensions.append(None)
+        else:
+            dimensions.append(part)
+    dim_list = ArraySizeNode(
+        token=_token,
+        dimensions=dimensions,
+    )
+    _attach_children(dim_list, [dimension for dimension in dimensions if dimension is not None])
     semantic_stack.append(dim_list)
+
+
+def make_empty_dimension_marker(_token):
+    semantic_stack.append(EMPTY_DIMENSION)
 
 
 # create a variable declaration subtree from type, id, and array sizes
@@ -370,7 +384,14 @@ def make_statblock_subtree(_token):
 # build a function body subtree
 def make_funcbody_subtree(_token):
     children = _pop_until_epsilon()
-    node = FuncBodyNode(token=_token)
+    local_vars = []
+    for child in children:
+        if isinstance(child, VarDeclNode):
+            local_vars.append(child)
+    node = FuncBodyNode(
+        token=_token,
+        local_vars=local_vars,
+    )
     _attach_children(node, children)
     semantic_stack.append(node)
 
@@ -380,9 +401,19 @@ def make_funcdef_subtree(_token):
     func_body = children.pop()
     return_type = children.pop()
     fparams_node = children.pop()
+    prefix_ids = children
 
-    node = FuncDefNode(token=_token)
-    for child in children:
+    node = FuncDefNode(
+        token=_token,
+        owner_id_node=None,
+        id_node=prefix_ids[-1],
+        fparams_node=fparams_node,
+        return_type_node=return_type,
+        func_body_node=func_body,
+    )
+    if len(prefix_ids) == 2:
+        node.owner_id_node = prefix_ids[0]
+    for child in prefix_ids:
         node.add_child(child)
     node.add_child(fparams_node)
     node.add_child(return_type)
@@ -392,7 +423,20 @@ def make_funcdef_subtree(_token):
 # create a class declaration subtree
 def make_classdecl_subtree(_token):
     children = _pop_until_epsilon()
-    node = ClassDeclNode(token=_token)
+    inherits = []
+    members = []
+    for child in children[1:]:
+        if isinstance(child, InheritsNode):
+            inherits.append(child)
+        if isinstance(child, (VarDeclNode, FuncDeclNode)):
+            members.append(child)
+    node = ClassDeclNode(
+        token=_token,
+        id_node=children[0],
+        inherits=inherits,
+        members=members,
+        body_items=children[1:],
+    )
     _attach_children(node, children)
     semantic_stack.append(node)
 
@@ -421,6 +465,8 @@ def make_prog_subtree(_token):
     # Snapshot children before reparenting; add_child mutates sibling links.
     for child in list(main_body.iter_children()):
         program_block.add_child(child)
+        if isinstance(child, VarDeclNode):
+            program_block.local_vars.append(child)
 
     node.add_child(class_list)
     node.add_child(funcdef_list)
@@ -441,6 +487,7 @@ semantic_actions = {
     "#make_floatnum_node": make_floatnum_node, 
     "#push_epsilon": push_epsilon, 
     "#make_arraysize_subtree": make_arraysize_subtree,
+    "#make_empty_dimension_marker": make_empty_dimension_marker,
     "#make_vardecl_subtree": make_vardecl_subtree,
     "#make_fparam_subtree": make_fparam_subtree,
     "#make_fparams_subtree": make_fparams_subtree,
