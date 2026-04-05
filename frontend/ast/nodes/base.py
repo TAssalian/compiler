@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Iterator
 from frontend.lexer.tokens import Token
 
 if TYPE_CHECKING:
-    from backend.symbols import SymbolEntry, SymbolTable
+    from frontend.semantics.symbols import SymbolEntry, SymbolTable
 
 
 @dataclass
@@ -17,8 +17,9 @@ class Node:
     last_child: Node | None = None
     prev_sibling: Node | None = None
     next_sibling: Node | None = None
-    symtab: SymbolTable | None = None
-    symtab_entry: SymbolEntry | None = None # Acts as direct pointer from AST node to its semantic meaning instead of having to perform re-lookups
+    symtab: SymbolTable | None = None # Store scope associated with node so we could re-enter scopes easily for the SemanticCheckingVisitor. Without it, semantic checking would have to rediscover the relevant entries or scopes by searching from parent scope, looking at each entry for right name, then get inner scope table
+    symtab_entry: SymbolEntry | None = None # Stores declaration records in a symbol table associated with that node, which is used for types checks and id resolution.
+    
 
     def add_child(self, child: Node) -> None:
         child.parent = self

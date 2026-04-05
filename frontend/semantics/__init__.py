@@ -1,11 +1,15 @@
-from backend.symbols import (
+from frontend.semantics.symbols import (
     Diagnostic,
     SymbolEntry,
     SymbolTable,
     format_diagnostics,
     format_symbol_table,
 )
-from backend.visitors import SemanticCheckingVisitor, SymTabCreationVisitor, Visitor
+from frontend.semantics.visitors import (
+    SemanticCheckingVisitor,
+    SymTabCreationVisitor,
+    Visitor,
+)
 
 __all__ = [
     "Diagnostic",

@@ -34,7 +34,7 @@ The driver scans every `*.src` file in the directory and generates the 3 output 
 ### Build ASTs from a directory
 
 ```bash
-python3 main.py path/to/folder/
+python3 -m frontend.semantics.client path/to/folder/
 ```
 
 This runs semantic analysis and writes:
@@ -47,6 +47,8 @@ To generate ASTs only:
 ```bash
 python3 -m frontend.ast.driver.ast_driver path/to/folder/
 ```
+
+The semantic-analysis implementation now lives under `frontend/semantics/`.
 
 ---
 

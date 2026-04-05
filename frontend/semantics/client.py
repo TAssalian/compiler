@@ -3,8 +3,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from backend.symbols import format_diagnostics, format_symbol_table
-from backend.visitors import SemanticCheckingVisitor, SymTabCreationVisitor
+from frontend.semantics.symbols import format_diagnostics, format_symbol_table
+from frontend.semantics.visitors import SemanticCheckingVisitor, SymTabCreationVisitor
 from frontend.lexer.lexer import Lexer
 from frontend.parser.parser import parse
 

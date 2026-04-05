@@ -1,5 +1,5 @@
-from backend.symbols import Diagnostic, SymbolEntry, SymbolTable
-from backend.visitors.visitor import Visitor
+from frontend.semantics.symbols import Diagnostic, SymbolEntry, SymbolTable
+from frontend.semantics.visitors.visitor import Visitor
 from frontend.ast.nodes import (
     AParamsNode,
     AddOpNode,
@@ -29,8 +29,7 @@ from frontend.ast.nodes import (
 
 
 class SemanticCheckingVisitor(Visitor):
-    # Initialize the semantic checker with the already-built global symbol table and
-    # traversal state used while descending into classes/functions
+    # Initialize the semantic checker with the already-built global symbol table and traversal state used while descending into classes/functions
     def __init__(self, global_table: SymbolTable | None = None) -> None:
         self.global_table = global_table # Take the global table to look at the structure of the program
         self.current_scope: SymbolTable | None = global_table
@@ -568,8 +567,7 @@ class SemanticCheckingVisitor(Visitor):
         )
         return None
 
-    # Apply every array index in a chain segment, ensuring each index expression is
-    # an integer and that the number of indexes does not exceed the declared rank
+    # Apply every array index in a chain segment, ensuring each index expression is an integer and that the number of indexes does not exceed the declared rank
     def _apply_indices(self, entry: SymbolEntry, current_type: str, indices: list[IndexNode], node) -> str | None:
         dimensions = list(entry.array_dimensions) # Work from the declared array shape stored on the symbol entry
         if len(indices) > len(dimensions):
@@ -624,8 +622,7 @@ class SemanticCheckingVisitor(Visitor):
                 return False
         return found_dimension_mismatch
 
-    # Central type-compatibility rule used for assignments, returns, and argument
-    # passing. It supports exact matches and array-shape checks only
+    # Central type-compatibility rule used for assignments, returns, and argument passing. It supports exact matches and array-shape checks only
     def _is_assignable(self, target_type: str | None, source_type: str | None) -> bool:
         if target_type is None or source_type is None:
             return False
@@ -646,8 +643,7 @@ class SemanticCheckingVisitor(Visitor):
 
         return False
 
-    # Return whether a type can participate in numeric operators. Arrays are
-    # excluded even if their base type is numeric
+    # Return whether a type can participate in numeric operators. Arrays are wxcluded even if their base type is numeric
     def _is_numeric_operand(self, type_name: str | None) -> bool:
         return self._base_type(type_name) in {"integer", "float"} and not self._dimensions(type_name)
 
@@ -658,9 +654,7 @@ class SemanticCheckingVisitor(Visitor):
         if self._lookup_class(type_name) is None:
             self._diagnostic("error", "undeclared_class", f"undeclared class '{type_name}'.", node)
 
-    # The grammar should produce exactly one program block that becomes the sole
-    # main function entry. Check the global table anyway so malformed ASTs or
-    # future grammar changes do not silently violate the semantic contract
+    # The grammar should produce exactly one program block that becomes the sole main function entry. Check the global table anyway so malformed ASTs or future grammar changes do not silently violate the semantic contract
     def _check_main_function(self) -> None:
         if self.global_table is None:
             return
@@ -684,8 +678,7 @@ class SemanticCheckingVisitor(Visitor):
             return None
         return classes[0]
 
-    # Convert a type name into the symbol table for that class so member access can
-    # search its fields and methods
+    # Convert a type name into the symbol table for that class so member access can search its fields and methods
     def _class_table_for_type(self, type_name: str) -> SymbolTable | None:
         class_entry = self._lookup_class(self._base_type(type_name))
         if class_entry is None:

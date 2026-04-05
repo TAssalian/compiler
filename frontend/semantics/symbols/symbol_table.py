@@ -2,24 +2,25 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from backend.symbols.symbol_entry import SymbolEntry
+from frontend.semantics.symbols.symbol_entry import SymbolEntry
 
 
 @dataclass
 class SymbolTable:
     name: str
     kind: str
-    parent_scope: SymbolTable | None = None
+    parent_scope: SymbolTable | None = None # To walk back up to parent scope to know whether function belongs to a class or if local var shadows class data member
     entries: list[SymbolEntry] = field(default_factory=list)
     inherited_class_tables: list[SymbolTable] = field(default_factory=list)
 
     # Return matching entries in this symbol table and any inherited class tables.
-    def lookup(
-        self,
-        name: str | None = None,
-        kinds: set[str] | None = None,
+    def lookup(self, 
+        name: str | None = None, 
+        kinds: set[str] | None = None, 
         visited: set[int] | None = None,
     ) -> list[SymbolEntry]:
+        
+        # Prevent infinite recursion if we have circular inheritance    
         if visited is None:
             visited = set()
         table_id = id(self)

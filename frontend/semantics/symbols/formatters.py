@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from backend.symbols.diagnostic import Diagnostic
-from backend.symbols.symbol_table import SymbolTable
+from frontend.semantics.symbols.diagnostic import Diagnostic
+from frontend.semantics.symbols.symbol_table import SymbolTable
 
 
 # get all the diagnostics found in the table of the <x>CreationVisitor class during the traversal
