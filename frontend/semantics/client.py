@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from frontend.semantics.symbols import format_diagnostics, format_symbol_table
-from frontend.semantics.visitors import SemanticCheckingVisitor, SymTabCreationVisitor
+from frontend.semantics.visitors import ComputeMemSizeVisitor, SemanticCheckingVisitor, SymTabCreationVisitor
 from frontend.lexer.lexer import Lexer
 from frontend.parser.parser import parse
 
@@ -30,14 +30,20 @@ def process_file(src_file: Path, output_dir: Path) -> None:
     semantic_visitor = SemanticCheckingVisitor(global_table=st_visitor.global_table)
     result.ast_root.accept(semantic_visitor)
 
+    diagnostics = st_visitor.diagnostics + semantic_visitor.diagnostics
+    blocking_layout_codes = {"undeclared_class"}
+    if not any(diagnostic.code in blocking_layout_codes for diagnostic in diagnostics):
+        mem_size_visitor = ComputeMemSizeVisitor(global_table=st_visitor.global_table)
+        result.ast_root.accept(mem_size_visitor)
+
     symbol_text = ""
     if st_visitor.global_table is not None:
         symbol_text = format_symbol_table(st_visitor.global_table)
-    error_text = format_diagnostics(st_visitor.diagnostics + semantic_visitor.diagnostics)
+    error_text = format_diagnostics(diagnostics)
 
     out_symboltables.write_text(symbol_text, encoding="utf-8")
     out_errors.write_text(error_text, encoding="utf-8")
-    print(f"[OK] Semantic phases 1-2 completed: {src_file.name}")
+    print(f"[OK] Semantic phases 1-3 completed: {src_file.name}")
 
 
 def main() -> None:

@@ -43,5 +43,5 @@ class Node:
         method_name = f"visit_{self.__class__.__name__}" # Get's method name dynamically
         visit_func = getattr(visitor, method_name, None) # Check whether specific visitor subclass has that method or not.
         if visit_func is None:
-            return visitor.generic_visit(self)
+            return visitor.visit_children(self)
         return visit_func(self)

@@ -13,15 +13,8 @@ class SymTabCreationVisitor(Visitor):
         self.member_functions: dict[tuple[str, str, tuple[str, ...]], dict[str, SymbolEntry | list[FuncDefNode] | None]] = {} # Because this grammar separates func. declarations from func. definitions, we want to add the definition to a previously declared function instead of creating a second function entry and table.
         self.diagnostics: list[Diagnostic] = [] # Gather semantic warnings and errors
 
-    def generic_visit(self, node):
-        for child in node.iter_children():
-            child.accept(self)
-        return node.symtab
-
     def visit_StartNode(self, node: StartNode):
-        program = node.first_child
-        program.accept(self)
-        node.symtab = program.symtab
+        node.symtab = self.visit_children(node)
         return node.symtab
 
     def visit_ProgNode(self, node: ProgNode):
@@ -161,10 +154,12 @@ class SymTabCreationVisitor(Visitor):
     def visit_VarDeclNode(self, node: VarDeclNode):
         # Decide if it's a class variable or a local variable
         kind = "local_var"
+        owner_class = None
         if self.current_scope.kind == "class":
             kind = "data_member"
-        
-        entry = self._make_entry(node, kind)
+            owner_class = self.current_scope.name
+
+        entry = self._make_entry(node, kind, owner_class=owner_class)
 
         if kind == "data_member":
             duplicate = None
@@ -219,8 +214,12 @@ class SymTabCreationVisitor(Visitor):
 
     def _visit_function_definition(self, node: FuncDefNode, function_table: SymbolTable) -> None:
         node.symtab = function_table
+        existing_params = function_table.lookup(kinds={"param"})
+        if existing_params:
+            for param_node, param_entry in zip(node.fparams_node.params, existing_params):
+                param_node.symtab_entry = param_entry
         child_nodes = [node.func_body_node]
-        if not function_table.lookup(kinds={"param"}):
+        if not existing_params:
             child_nodes.insert(0, node.fparams_node)
         self._visit_in_scope(child_nodes, function_table)
 

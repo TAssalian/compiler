@@ -37,30 +37,16 @@ class SemanticCheckingVisitor(Visitor):
         self.current_class: SymbolTable | None = None
         self.diagnostics: list[Diagnostic] = []
 
-    def generic_visit(self, node):
-        for child in node.iter_children():
-            child.accept(self)
-        return getattr(node, "inferred_type", None)
-
-
-    def visit_StartNode(self, node: StartNode):
-        program = node.first_child
-        if program is not None:
-            program.accept(self)
-        return None
-
     def visit_ProgNode(self, node: ProgNode):
         self.global_table = node.symtab
         self.current_scope = self.global_table
         self._check_main_function()
         self._check_circular_class_dependencies() # Reject inheritance and/or member-type cycles before normal traversal
-        for child in node.iter_children():
-            child.accept(self)
+        self.visit_children(node)
         return None
 
     # Validate inherited class names, switch into the class scope, and then check each member declaration and definition with that class context symbol table
     def visit_ClassDeclNode(self, node: ClassDeclNode):
-        
         # Check for undeclared inherited class
         for inherits_node in node.inherits:
             parent_name = inherits_node.id_node.token.lexeme

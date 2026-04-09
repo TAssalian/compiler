@@ -6,12 +6,14 @@ from frontend.semantics.symbols import (
     format_symbol_table,
 )
 from frontend.semantics.visitors import (
+    ComputeMemSizeVisitor,
     SemanticCheckingVisitor,
     SymTabCreationVisitor,
     Visitor,
 )
 
 __all__ = [
+    "ComputeMemSizeVisitor",
     "Diagnostic",
     "SemanticCheckingVisitor",
     "SymbolEntry",
