@@ -4,14 +4,10 @@ from frontend.ast.nodes.declarations.fparams_node import FParamsNode
 from frontend.ast.nodes.declarations.funcdecl_node import FuncDeclNode
 from frontend.ast.nodes.declarations.vardecl_node import VarDeclNode
 from frontend.ast.nodes.expressions.aparams_node import AParamsNode
-from frontend.ast.nodes.expressions.arithexpr_node import ArithExprNode
-from frontend.ast.nodes.expressions.expr_node import ExprNode
 from frontend.ast.nodes.expressions.floatnum_node import FloatNumNode
 from frontend.ast.nodes.expressions.intnum_node import IntNumNode
 from frontend.ast.nodes.expressions.minus_node import MinusNode
 from frontend.ast.nodes.expressions.plus_node import PlusNode
-from frontend.ast.nodes.expressions.relexpr_node import RelExprNode
-from frontend.ast.nodes.expressions.term_node import TermNode
 from frontend.ast.nodes.modifiers.private_node import PrivateNode
 from frontend.ast.nodes.modifiers.public_node import PublicNode
 from frontend.ast.nodes.operators.addop_node import AddOpNode
@@ -44,11 +40,9 @@ __all__ = [
     "AParamsNode",
     "AddOpNode",
     "AssignOpNode",
-    "ArithExprNode",
     "ArraySizeNode",
     "ClassDeclNode",
     "ClassListNode",
-    "ExprNode",
     "FParamNode",
     "FParamsNode",
     "FloatNumNode",
@@ -70,13 +64,11 @@ __all__ = [
     "ProgramBlockNode",
     "PublicNode",
     "ReadNode",
-    "RelExprNode",
     "RelOpNode",
     "ReturnNode",
     "StartNode",
     "StatBlockNode",
     "StatementNode",
-    "TermNode",
     "TypeNode",
     "VarDeclNode",
     "VariableNode",

@@ -395,7 +395,7 @@ class SemanticCheckingVisitor(Visitor):
             return None
 
         setattr(owner_node, "inferred_type", current_type) # Publish the final type on the owning AST node
-        if current_entry is not None:
+        if current_entry is not None and not isinstance(owner_node, IdNode):
             owner_node.symtab_entry = current_entry
         return current_type
 

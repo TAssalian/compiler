@@ -1,0 +1,196 @@
+AST node composition guide
+
+This file only describes what each AST node is made up of in terms of child nodes.
+For each node, it says whether the number of child nodes is exact, optional, or variable.
+
+StartNode
+- Exactly 1 child:
+- ProgNode
+
+ProgNode
+- Exactly 3 children:
+- ClassListNode
+- FuncDefListNode
+- ProgramBlockNode
+
+ClassListNode
+- Any amount of children:
+- ClassDeclNode
+
+FuncDefListNode
+- Any amount of children:
+- FuncDefNode
+
+ProgramBlockNode
+- Any amount of children.
+- Usually made up of:
+- VarDeclNode
+- StatementNode
+- ReturnNode
+- WriteNode
+- ReadNode
+- WhileNode
+- IfNode
+
+ClassDeclNode
+- Any amount of children, but at least 1.
+- First child:
+- IdNode
+- Remaining children can be any amount of:
+- InheritsNode
+- PublicNode
+- PrivateNode
+- VarDeclNode
+- FuncDeclNode
+
+InheritsNode
+- Exactly 1 child:
+- IdNode
+
+PublicNode
+- Exactly 0 children.
+
+PrivateNode
+- Exactly 0 children.
+
+FuncDeclNode
+- Exactly 3 children:
+- IdNode
+- FParamsNode
+- TypeNode
+
+FuncDefNode
+- Either exactly 4 or exactly 5 children.
+- If there is no owner:
+- IdNode
+- FParamsNode
+- TypeNode
+- FuncBodyNode
+- If there is an owner:
+- IdNode
+- IdNode
+- FParamsNode
+- TypeNode
+- FuncBodyNode
+
+FuncBodyNode
+- Any amount of children.
+- Usually made up of:
+- VarDeclNode
+- StatementNode
+- ReturnNode
+- WriteNode
+- ReadNode
+- WhileNode
+- IfNode
+
+FParamsNode
+- Any amount of children:
+- FParamNode
+
+FParamNode
+- Exactly 3 children:
+- TypeNode
+- IdNode
+- ArraySizeNode
+
+VarDeclNode
+- Exactly 3 children:
+- TypeNode
+- IdNode
+- ArraySizeNode
+
+TypeNode
+- Exactly 0 children.
+
+IdNode
+- Exactly 0 children.
+
+ArraySizeNode
+- Any amount of children:
+- IntNumNode
+
+VariableNode // Variable is being accessed. Different than VarDecl which is variable being declared
+- Any amount of children, but usually at least 1.
+- Can be made up of:
+- IdNode
+- IndexNode
+- AParamsNode
+
+IndexNode
+- Any amount of children.
+- Usually exactly 1 child:
+- an expression subtree root
+
+AParamsNode
+- Any amount of children.
+- Usually made up of expression subtree roots.
+
+StatementNode
+- Any amount of children, but usually at least 1.
+- Can be made up of:
+- IdNode
+- IndexNode
+- AParamsNode
+- AssignOpNode
+- expression subtree roots
+
+ReturnNode
+- Exactly 1 child:
+- an expression subtree root (IntNumNode, MultOpNode, MinusNode, RelOpNode, etc.)
+
+WriteNode
+- Exactly 1 child:
+- an expression subtree root
+
+ReadNode
+- Exactly 1 child:
+- VariableNode
+
+WhileNode
+- Exactly 2 children:
+- RelOpNode
+- StatBlockNode
+
+IfNode
+- Exactly 3 children:
+- RelOpNode
+- StatBlockNode
+- StatBlockNode
+
+StatBlockNode
+- Any amount of children:
+- statement subtrees
+
+IntNumNode
+- Exactly 0 children.
+
+FloatNumNode
+- Exactly 0 children.
+
+MinusNode
+- Usually exactly 1 child:
+- operand subtree root
+
+PlusNode
+- Usually exactly 1 child:
+- operand subtree root
+
+NotNode
+- Exactly 1 child:
+- operand subtree root
+
+AddOpNode
+- Exactly 2 children:
+- left operand subtree root
+- right operand subtree root
+
+MultOpNode
+- Exactly 2 children:
+- left operand subtree root
+- right operand subtree root
+
+RelOpNode
+- Exactly 2 children:
+- left operand subtree root
+- right operand subtree root

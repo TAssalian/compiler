@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+from backend.visitors import CodeGenVisitor, ComputeMemSizeVisitor
 from frontend.semantics.symbols import format_diagnostics, format_symbol_table
 from frontend.semantics.visitors import SemanticCheckingVisitor, SymTabCreationVisitor
 from frontend.lexer.lexer import Lexer
@@ -15,12 +16,14 @@ def process_file(src_file: Path, output_dir: Path) -> None:
 
     out_symboltables = output_dir / f"{src_file.stem}.outsymboltables"
     out_errors = output_dir / f"{src_file.stem}.outsemanticerrors"
+    out_moon = output_dir / f"{src_file.stem}.moon"
 
     if not result.success:
         errors = result.errors
         text = "\n".join(errors)
         out_symboltables.write_text("", encoding="utf-8")
         out_errors.write_text(text, encoding="utf-8")
+        out_moon.write_text("", encoding="utf-8")
         print(f"[AST ERROR] {src_file.name} (parser errors: {len(errors)})")
         return
 
@@ -31,6 +34,11 @@ def process_file(src_file: Path, output_dir: Path) -> None:
     result.ast_root.accept(semantic_visitor)
 
     diagnostics = st_visitor.diagnostics + semantic_visitor.diagnostics
+    blocking_layout_codes = {"undeclared_class"}
+
+    if not any(diagnostic.code in blocking_layout_codes for diagnostic in diagnostics):
+        mem_size_visitor = ComputeMemSizeVisitor(global_table=st_visitor.global_table)
+        result.ast_root.accept(mem_size_visitor)
 
     symbol_text = ""
     if st_visitor.global_table is not None:
@@ -40,7 +48,16 @@ def process_file(src_file: Path, output_dir: Path) -> None:
     out_symboltables.write_text(symbol_text, encoding="utf-8")
     out_errors.write_text(error_text, encoding="utf-8")
 
-    print(f"[OK] Semantic analysis completed: {src_file.name}")
+    has_errors = any(diagnostic.severity == "error" for diagnostic in diagnostics)
+
+    if not has_errors and st_visitor.global_table is not None:
+        codegen_visitor = CodeGenVisitor()
+        result.ast_root.accept(codegen_visitor)
+        out_moon.write_text(codegen_visitor.output(), encoding="utf-8")
+    else:
+        out_moon.write_text("", encoding="utf-8")
+
+    print(f"[OK] Code generation completed: {src_file.name}")
 
 
 def main() -> None:

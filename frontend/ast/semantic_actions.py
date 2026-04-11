@@ -56,37 +56,40 @@ def _attach_children(parent, children):
     for child in children:
         parent.add_child(child)
 
-
+# Turn expression pieces into a subtree with the operator as the root for proper printing
+# Takes operators used in TERM, ARITHEXPR or EXPR and builds tree around it
 def _build_expression(children, operator_type):
-    if not children:
-        return None
-
-    index = 0
-    if isinstance(children[index], (MinusNode, PlusNode, NotNode)):
+    index = 0 # cursor into the list of nodes
+    
+    # build the lhs operand of the first operator
+    # initializes root to be the current lhs of the expression
+    if isinstance(children[index], (MinusNode, PlusNode, NotNode)): # If we have a unary operator, then unary node becomes the root
         root = children[index]
         index += 1
         if root.first_child is None:
             operand = children[index]
             index += 1
 
-            while index < len(children) and not isinstance(children[index], operator_type):
+            while index < len(children) and not isinstance(children[index], operator_type): # attach non-operator nodes to root until next operator is encountered to finish computing the lhs
                 operand.add_child(children[index])
                 index += 1
 
             root.add_child(operand)
-    else:
+            
+    else:  # if not, then first child becomes the root
         root = children[index]
         index += 1
 
-        while index < len(children) and not isinstance(children[index], operator_type):
+        while index < len(children) and not isinstance(children[index], operator_type): # attach non-operator nodes to root until next operator is encountered
             root.add_child(children[index])
             index += 1
-
+    
     while index < len(children):
-        operator = children[index]
+        operator = children[index] # guaranteed to be next operator because while loops above stop
         index += 1
 
-        if isinstance(children[index], (MinusNode, PlusNode, NotNode)):
+        # read the right hand side of the operand
+        if isinstance(children[index], (MinusNode, PlusNode, NotNode)): # make unary operator the right subtree root
             right = children[index]
             index += 1
             if right.first_child is None:
@@ -98,7 +101,7 @@ def _build_expression(children, operator_type):
                     index += 1
 
                 right.add_child(operand)
-        else:
+        else: # else, next child is right subtree root
             right = children[index]
             index += 1
 
@@ -106,6 +109,7 @@ def _build_expression(children, operator_type):
                 right.add_child(children[index])
                 index += 1
 
+        # make operator the new root
         operator.add_child(root)
         operator.add_child(right)
         root = operator

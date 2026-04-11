@@ -1,0 +1,13 @@
+I. Overall design
+
+The computing memory size phase and the code generation phase are designed as two separate backend passes. The reason for this is to keep the work organized. First, the compiler computes how much memory each part of the program needs and where it will be stored. After that, the compiler generates Moon code using those exact sizes and offsets. This makes code generation much simpler because it does not need to figure out layout while producing instructions.
+
+The overall design is based on the AST, the symbol tables, and two visitors. The AST gives the structure of the program, and the symbol tables already contain the declarations and scope information from the semantic phase. The ComputeMemSizeVisitor adds size and offset information to symbol entries, and the CodeGenVisitor uses that information to emit Moon code. In short, the first visitor decides the memory layout, and the second visitor uses that layout to generate code.
+
+II. Phases
+
+The sequence starts after parsing and semantic analysis. The compiler first builds symbol tables and checks semantic rules. Then the memory-size phase begins. Its purpose is to assign storage to class members, function parameters, local variables, return values, return addresses, literals, and temporary expression results. For classes, it computes the full object size, including inherited members. For functions and the main block, it computes the stack frame size by assigning offsets to everything stored in that scope. Arrays are handled by multiplying the base type size by the dimensions, while array parameters are stored as addresses.
+
+After memory has been computed, the code generation phase starts. Its purpose is to produce Moon assembly that uses the stored offsets. It generates the program entry code, function labels, assignments, expression evaluation, if statements, while loops, returns, function calls, array accesses, and object-member accesses. Expression nodes use the temporary memory slots created in the previous phase, and function code uses the precomputed return-value and return-address slots. Because all layout information is already known, the code generator can focus only on emitting the correct instructions.
+
+So the implementation follows a clear order of phases. First, symbol table creation builds the scope structure. Second, semantic checking verifies types and meaning. Third, the computing memory size phase decides the layout of objects and stack frames. Fourth, the code generation phase turns that layout into Moon code. The main idea is that each phase has one clear role, and each phase prepares the information needed by the next one.
